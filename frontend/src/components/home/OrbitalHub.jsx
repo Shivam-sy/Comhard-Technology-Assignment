@@ -6,7 +6,7 @@ const ORBITAL_NODES = [
   {
     id: 1,
     label: 'Smart Triage',
-    desc: 'Auto-classifies incoming tickets',
+    desc: 'Auto-prioritizes incoming support tickets',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
     angle: -90, // top
     status: 'ACTIVE',
@@ -15,7 +15,7 @@ const ORBITAL_NODES = [
   {
     id: 2,
     label: 'Agent Routing',
-    desc: 'Matches issue with domain expert',
+    desc: 'Assigns tickets to authorized support agents',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
     angle: -38, // top-right
     status: 'ASSIGNED',
@@ -24,7 +24,7 @@ const ORBITAL_NODES = [
   {
     id: 3,
     label: 'Customer Portal',
-    desc: 'Self-service ticket submission',
+    desc: 'Self-service ticket tracking & replies',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&auto=format&fit=crop&q=80',
     angle: 18, // right
     status: 'OPEN',
@@ -32,8 +32,8 @@ const ORBITAL_NODES = [
   },
   {
     id: 4,
-    label: 'SLA Engine',
-    desc: 'Enforces 24-hour overdue rules',
+    label: '24h SLA Engine',
+    desc: 'Enforces deterministic overdue breach rules',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80',
     angle: 75, // bottom-right
     status: 'MONITORING',
@@ -42,7 +42,7 @@ const ORBITAL_NODES = [
   {
     id: 5,
     label: 'Internal Notes',
-    desc: 'Private collaboration layer',
+    desc: 'Confidential staff collaboration space',
     avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&auto=format&fit=crop&q=80',
     angle: 135, // bottom-left
     status: 'CONFIDENTIAL',
@@ -50,8 +50,8 @@ const ORBITAL_NODES = [
   },
   {
     id: 6,
-    label: 'Instant Resolve',
-    desc: 'Real-time customer feedback',
+    label: 'Rapid Resolve',
+    desc: 'Resolved with transactional Prisma audit trail',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80',
     angle: 200, // left
     status: 'RESOLVED',
@@ -146,6 +146,12 @@ export function OrbitalHub() {
         {/* Ambient subtle glow ring */}
         <div className="absolute -inset-2 rounded-full border border-indigo-400/20 animate-pulse pointer-events-none" />
       </motion.div>
+
+      {/* Floating Pill Badge below Center Core (Matches Reference Screenshot) */}
+      <div className="absolute top-[284px] left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/90 shadow-sm text-xs font-semibold text-slate-800 whitespace-nowrap">
+        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+        <span>Intelligent Connection</span>
+      </div>
 
       {/* Orbiting Avatar Nodes */}
       {ORBITAL_NODES.map((node, i) => {
