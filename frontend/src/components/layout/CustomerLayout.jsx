@@ -24,11 +24,11 @@ export function CustomerLayout() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-8">
-              <Link to="/portal/dashboard" className="flex items-center gap-2 text-freshdesk-navy font-bold text-lg">
-                <div className="w-9 h-9 rounded-lg bg-freshdesk-600 flex items-center justify-center text-white shadow-sm">
-                  <LifeBuoy className="w-5 h-5" />
+              <Link to="/portal/dashboard" className="flex items-center gap-2 text-slate-950 font-bold text-lg">
+                <div className="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                  D
                 </div>
-                <span>FreshSupport <span className="text-freshdesk-600 text-sm font-normal">Customer Portal</span></span>
+                <span>Desk Flow <span className="text-slate-500 text-xs font-normal">Customer Portal</span></span>
               </Link>
 
               <nav className="hidden md:flex items-center gap-1">

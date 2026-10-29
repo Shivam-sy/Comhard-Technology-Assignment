@@ -37,12 +37,12 @@ export function StaffLayout() {
         <aside className="w-64 bg-freshdesk-navy text-slate-200 flex flex-col shrink-0 border-r border-slate-800">
           {/* Logo & Product Heading */}
           <div className="h-16 flex items-center px-6 gap-3 border-b border-slate-800 bg-freshdesk-dark">
-            <div className="w-8 h-8 rounded-lg bg-freshdesk-500 flex items-center justify-center text-white shadow">
-              <LifeBuoy className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-lg bg-white text-slate-950 flex items-center justify-center font-bold text-sm shadow">
+              D
             </div>
             <div>
-              <span className="font-bold text-white text-base tracking-tight">FreshSupport</span>
-              <span className="block text-[10px] text-freshdesk-300 uppercase tracking-widest font-semibold">
+              <span className="font-bold text-white text-base tracking-tight">Desk Flow</span>
+              <span className="block text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
                 Helpdesk Console
               </span>
             </div>

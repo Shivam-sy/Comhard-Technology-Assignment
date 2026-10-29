@@ -3,6 +3,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
+// Pages
+import HomePage from './pages/HomePage';
+
 // Layouts
 import CustomerLayout from './components/layout/CustomerLayout';
 import StaffLayout from './components/layout/StaffLayout';
@@ -23,25 +26,11 @@ import AgentManagement from './pages/staff/AgentManagement';
 
 import NotFound from './pages/NotFound';
 
-function RootRedirect() {
-  const { role, loading } = useAuth();
-
-  if (loading) {
-    return <LoadingSpinner fullPage text="Initializing support desk..." />;
-  }
-
-  if (role === 'ADMIN' || role === 'AGENT') {
-    return <Navigate to="/staff/dashboard" replace />;
-  }
-
-  return <Navigate to="/portal/dashboard" replace />;
-}
-
 export function App() {
   return (
     <Routes>
-      {/* Root redirect based on active user role */}
-      <Route path="/" element={<RootRedirect />} />
+      {/* High-End Clean White Landing Page */}
+      <Route path="/" element={<HomePage />} />
 
       {/* Customer Portal Routes */}
       <Route path="/portal" element={<CustomerLayout />}>
