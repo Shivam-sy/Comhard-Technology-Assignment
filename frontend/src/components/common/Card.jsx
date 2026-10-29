@@ -1,20 +1,23 @@
 import React from 'react';
+import { Card as ShadcnCard, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/card';
+import { cn } from '@/lib/utils';
 
 export function Card({ children, title, subtitle, action, className = '', noPadding = false }) {
   return (
-    <div className={`bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden ${className}`}>
+    <ShadcnCard className={cn('overflow-hidden', className)}>
       {(title || action) && (
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-          <div>
-            {title && <h3 className="font-semibold text-slate-900 text-base">{title}</h3>}
-            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 px-6 py-4 border-b border-border">
+          <div className="space-y-1">
+            {title && <CardTitle className="text-base font-semibold">{title}</CardTitle>}
+            {subtitle && <CardDescription className="text-xs">{subtitle}</CardDescription>}
           </div>
           {action && <div>{action}</div>}
-        </div>
+        </CardHeader>
       )}
-      <div className={noPadding ? '' : 'p-5'}>{children}</div>
-    </div>
+      <CardContent className={noPadding ? 'p-0' : 'p-6'}>{children}</CardContent>
+    </ShadcnCard>
   );
 }
 
+export { ShadcnCard, CardHeader, CardTitle, CardDescription, CardContent, CardFooter };
 export default Card;

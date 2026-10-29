@@ -9,7 +9,71 @@ export async function getCurrentUser(user) {
       email: true,
       name: true,
       role: true,
+      company: true,
+      phone: true,
+      onboarded: true,
       createdAt: true,
+      updatedAt: true,
+    },
+  });
+}
+
+export async function updateProfile(identifier, { name, company, phone }) {
+  const data = {
+    onboarded: true,
+  };
+  // Security rule: Never allow role modification via public profile setup
+  if (name && typeof name === 'string') data.name = name.trim();
+  if (company !== undefined) data.company = company ? String(company).trim() : null;
+  if (phone !== undefined) data.phone = phone ? String(phone).trim() : null;
+
+  const existing = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { id: identifier },
+        { clerkId: identifier },
+      ],
+    },
+  });
+
+  if (existing) {
+    return prisma.user.update({
+      where: { id: existing.id },
+      data,
+      select: {
+        id: true,
+        clerkId: true,
+        name: true,
+        email: true,
+        role: true,
+        company: true,
+        phone: true,
+        onboarded: true,
+        updatedAt: true,
+      },
+    });
+  }
+
+  // Create record if not yet created
+  return prisma.user.create({
+    data: {
+      clerkId: identifier,
+      email: `${identifier}@customer.deskflow.io`,
+      name: data.name || 'Customer',
+      role: 'CUSTOMER',
+      company: data.company,
+      phone: data.phone,
+      onboarded: true,
+    },
+    select: {
+      id: true,
+      clerkId: true,
+      name: true,
+      email: true,
+      role: true,
+      company: true,
+      phone: true,
+      onboarded: true,
       updatedAt: true,
     },
   });

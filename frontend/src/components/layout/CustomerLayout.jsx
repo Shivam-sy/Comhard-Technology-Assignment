@@ -1,90 +1,81 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import RoleSwitcherBar from '../common/RoleSwitcherBar';
-import { LifeBuoy, PlusCircle, Ticket, LayoutDashboard, User } from 'lucide-react';
+import { UserButton } from '@clerk/clerk-react';
+import { Button } from '../ui/button';
+import { Plus } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export function CustomerLayout() {
-  const { user, role } = useAuth();
+  const { user, isCustomerSignedIn, logout } = useAuth();
   const location = useLocation();
+  const isClerkConfigured = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
   const navItems = [
-    { label: 'Dashboard', path: '/portal/dashboard', icon: LayoutDashboard },
-    { label: 'My Tickets', path: '/portal/tickets', icon: Ticket },
-    { label: 'Submit Ticket', path: '/portal/tickets/new', icon: PlusCircle },
+    { label: 'Home', path: '/portal/dashboard' },
+    { label: 'My tickets', path: '/portal/tickets' },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* Dev & Persona switcher bar */}
-      <RoleSwitcherBar />
-
-      {/* Customer Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-8">
-              <Link to="/portal/dashboard" className="flex items-center gap-2 text-slate-950 font-bold text-lg">
-                <div className="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-                  D
-                </div>
-                <span>Desk Flow <span className="text-slate-500 text-xs font-normal">Customer Portal</span></span>
-              </Link>
-
-              <nav className="hidden md:flex items-center gap-1">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = location.pathname === item.path;
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition ${
-                        isActive
-                          ? 'bg-freshdesk-50 text-freshdesk-700'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Link
-                to="/portal/tickets/new"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-freshdesk-600 hover:bg-freshdesk-700 text-white text-sm font-medium shadow-sm transition"
-              >
-                <PlusCircle className="w-4 h-4" />
-                New Ticket
-              </Link>
-
-              <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-                <div className="w-8 h-8 rounded-full bg-freshdesk-100 text-freshdesk-700 flex items-center justify-center text-xs font-semibold">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                </div>
-                <div className="hidden sm:block text-left text-xs">
-                  <p className="font-semibold text-slate-800 leading-tight">{user?.name}</p>
-                  <p className="text-slate-500 leading-tight">{user?.email}</p>
-                </div>
+    <div className="min-h-screen flex flex-col bg-background">
+      <header className="border-b border-border bg-white/80 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-6">
+            <Link to="/portal/dashboard" className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-md bg-foreground text-background flex items-center justify-center text-sm font-semibold">
+                D
               </div>
-            </div>
+              <span className="font-semibold tracking-tight">DeskFlow</span>
+            </Link>
+
+            <nav className="hidden sm:flex items-center gap-4 text-sm">
+              {navItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    'transition-colors',
+                    location.pathname === item.path
+                      ? 'text-foreground font-medium'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link to="/portal/tickets/new">
+              <Button size="sm" className="gap-1.5 rounded-full px-4">
+                <Plus className="w-4 h-4" />
+                <span>New ticket</span>
+              </Button>
+            </Link>
+
+            {isClerkConfigured && (
+              <div className="flex items-center gap-2 pl-2 border-l border-neutral-200">
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: 'w-8 h-8 rounded-full ring-2 ring-neutral-200',
+                    },
+                  }}
+                />
+                <span className="text-xs font-semibold text-neutral-800 hidden sm:inline truncate max-w-[120px]">
+                  {user?.name || 'Customer'}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Main Page Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6">
         <Outlet />
       </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        <p>Support Desk System — Freshdesk-Inspired Architecture</p>
-      </footer>
     </div>
   );
 }

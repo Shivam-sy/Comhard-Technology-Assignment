@@ -1,78 +1,71 @@
 import React from 'react';
-import { AlertCircle, Clock } from 'lucide-react';
+import { Badge as ShadcnBadge } from '../ui/badge';
+import { cn } from '@/lib/utils';
 
-export function StatusBadge({ status, size = 'sm' }) {
-  const styles = {
-    OPEN: 'bg-blue-50 text-blue-700 border-blue-200',
-    IN_PROGRESS: 'bg-amber-50 text-amber-700 border-amber-200',
-    WAITING_ON_CUSTOMER: 'bg-purple-50 text-purple-700 border-purple-200',
-    RESOLVED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  };
+const STATUS = {
+  OPEN: { label: 'Open', dot: 'bg-blue-500' },
+  IN_PROGRESS: { label: 'In progress', dot: 'bg-amber-500' },
+  WAITING_ON_CUSTOMER: { label: 'Waiting on customer', dot: 'bg-zinc-400' },
+  RESOLVED: { label: 'Resolved', dot: 'bg-emerald-500' },
+};
 
-  const labels = {
-    OPEN: 'Open',
-    IN_PROGRESS: 'In Progress',
-    WAITING_ON_CUSTOMER: 'Waiting on Customer',
-    RESOLVED: 'Resolved',
-  };
+const PRIORITY = {
+  LOW: { label: 'Low', className: 'text-muted-foreground' },
+  MEDIUM: { label: 'Medium', className: 'text-foreground' },
+  HIGH: { label: 'High', className: 'text-orange-600 font-medium' },
+  URGENT: { label: 'Urgent', className: 'text-rose-600 font-medium' },
+};
 
-  const sizeClasses = size === 'xs' ? 'px-1.5 py-0.5 text-xs' : 'px-2.5 py-1 text-xs';
-
+export function StatusBadge({ status, size = 'sm', className = '' }) {
+  const config = STATUS[status] || { label: status, dot: 'bg-zinc-400' };
   return (
     <span
-      className={`inline-flex items-center font-medium rounded-full border ${styles[status] || 'bg-gray-100 text-gray-700 border-gray-200'} ${sizeClasses}`}
+      className={cn(
+        'inline-flex items-center gap-1.5 text-foreground select-none',
+        size === 'xs' ? 'text-xs' : 'text-sm',
+        className
+      )}
     >
-      {labels[status] || status}
+      <span className={cn('w-2 h-2 rounded-full shrink-0', config.dot)} />
+      {config.label}
     </span>
   );
 }
 
-export function PriorityBadge({ priority, size = 'sm' }) {
-  const styles = {
-    LOW: 'bg-slate-100 text-slate-700 border-slate-200',
-    MEDIUM: 'bg-sky-50 text-sky-700 border-sky-200',
-    HIGH: 'bg-orange-50 text-orange-700 border-orange-200 font-medium',
-    URGENT: 'bg-rose-50 text-rose-700 border-rose-300 font-semibold ring-1 ring-rose-200',
-  };
-
-  const labels = {
-    LOW: 'Low',
-    MEDIUM: 'Medium',
-    HIGH: 'High',
-    URGENT: 'Urgent',
-  };
-
-  const sizeClasses = size === 'xs' ? 'px-1.5 py-0.5 text-xs' : 'px-2 py-0.5 text-xs';
-
+export function PriorityBadge({ priority, size = 'sm', className = '' }) {
+  const config = PRIORITY[priority] || { label: priority, className: 'text-muted-foreground' };
   return (
-    <span
-      className={`inline-flex items-center rounded-md border ${styles[priority] || 'bg-gray-100 text-gray-700'} ${sizeClasses}`}
-    >
-      {labels[priority] || priority}
+    <span className={cn('select-none', size === 'xs' ? 'text-xs' : 'text-sm', config.className, className)}>
+      {config.label}
     </span>
   );
 }
 
-export function OverdueBadge({ isOverdue }) {
+export function OverdueBadge({ isOverdue, className = '' }) {
   if (!isOverdue) return null;
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-md bg-red-100 text-red-800 border border-red-200 animate-pulse">
-      <AlertCircle className="w-3.5 h-3.5 text-red-600" />
-      Overdue (&gt;24h)
+    <span
+      className={cn(
+        'shrink-0 px-1.5 py-0.5 text-xs font-medium rounded bg-rose-50 text-rose-700 select-none',
+        className
+      )}
+    >
+      Overdue
     </span>
   );
 }
 
-export function RoleBadge({ role }) {
-  const styles = {
-    ADMIN: 'bg-indigo-100 text-indigo-800 border-indigo-200',
-    AGENT: 'bg-teal-100 text-teal-800 border-teal-200',
-    CUSTOMER: 'bg-slate-100 text-slate-800 border-slate-200',
-  };
-
+export function RoleBadge({ role, className = '' }) {
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border ${styles[role] || 'bg-gray-100 text-gray-700'}`}>
-      {role}
+    <span
+      className={cn(
+        'inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-muted text-muted-foreground capitalize select-none',
+        className
+      )}
+    >
+      {role?.toLowerCase()}
     </span>
   );
 }
+
+export { ShadcnBadge as Badge };

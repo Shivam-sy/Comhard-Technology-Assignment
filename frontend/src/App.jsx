@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import LoadingSpinner from './components/common/LoadingSpinner';
+import OnboardingModal from './components/auth/OnboardingModal';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -10,6 +11,7 @@ import HomePage from './pages/HomePage';
 import CustomerLayout from './components/layout/CustomerLayout';
 import StaffLayout from './components/layout/StaffLayout';
 import RoleGuard from './components/auth/RoleGuard';
+import CustomerAuthGuard from './components/auth/CustomerAuthGuard';
 
 // Customer Pages
 import CustomerDashboard from './pages/customer/CustomerDashboard';
@@ -27,48 +29,76 @@ import AgentManagement from './pages/staff/AgentManagement';
 import NotFound from './pages/NotFound';
 
 export function App() {
+  const { user, isSignedIn } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    // When signed in through Clerk, check if the Customer profile details (Name, Email, Phone) are complete
+    if (isSignedIn && user && user.role === 'CUSTOMER') {
+      const hasPhone = Boolean(user.phone && String(user.phone).trim().length >= 4);
+      const isComplete = Boolean(user.onboarded && hasPhone);
+      setShowOnboarding(!isComplete);
+    } else {
+      setShowOnboarding(false);
+    }
+  }, [isSignedIn, user]);
+
   return (
-    <Routes>
-      {/* High-End Clean White Landing Page */}
-      <Route path="/" element={<HomePage />} />
+    <>
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+      />
 
-      {/* Customer Portal Routes */}
-      <Route path="/portal" element={<CustomerLayout />}>
-        <Route index element={<Navigate to="/portal/dashboard" replace />} />
-        <Route path="dashboard" element={<CustomerDashboard />} />
-        <Route path="tickets" element={<CustomerTickets />} />
-        <Route path="tickets/new" element={<CreateTicket />} />
-        <Route path="tickets/:id" element={<CustomerTicketDetails />} />
-      </Route>
+      <Routes>
+        {/* High-End Clean White Landing Page */}
+        <Route path="/" element={<HomePage />} />
 
-      {/* Staff Workspace Routes (Agent & Admin) */}
-      <Route
-        path="/staff"
-        element={
-          <RoleGuard allowedRoles={['AGENT', 'ADMIN']}>
-            <StaffLayout />
-          </RoleGuard>
-        }
-      >
-        <Route index element={<Navigate to="/staff/dashboard" replace />} />
-        <Route path="dashboard" element={<StaffDashboard />} />
-        <Route path="tickets" element={<AllTickets />} />
-        <Route path="assigned" element={<AssignedTickets />} />
-        <Route path="tickets/:id" element={<StaffTicketDetails />} />
-        {/* Admin only */}
+        {/* Customer Portal Routes (Strictly Guarded by Clerk Auth!) */}
         <Route
-          path="agents"
+          path="/portal"
           element={
-            <RoleGuard allowedRoles={['ADMIN']}>
-              <AgentManagement />
+            <CustomerAuthGuard>
+              <CustomerLayout />
+            </CustomerAuthGuard>
+          }
+        >
+          <Route index element={<Navigate to="/portal/dashboard" replace />} />
+          <Route path="dashboard" element={<CustomerDashboard />} />
+          <Route path="tickets" element={<CustomerTickets />} />
+          <Route path="tickets/new" element={<CreateTicket />} />
+          <Route path="tickets/:id" element={<CustomerTicketDetails />} />
+        </Route>
+
+        {/* Staff Workspace Routes (Agent & Admin) */}
+        <Route
+          path="/staff"
+          element={
+            <RoleGuard allowedRoles={['AGENT', 'ADMIN']}>
+              <StaffLayout />
             </RoleGuard>
           }
-        />
-      </Route>
+        >
+          <Route index element={<Navigate to="/staff/dashboard" replace />} />
+          <Route path="dashboard" element={<StaffDashboard />} />
+          <Route path="tickets" element={<AllTickets />} />
+          <Route path="assigned" element={<AssignedTickets />} />
+          <Route path="tickets/:id" element={<StaffTicketDetails />} />
+          {/* Admin only */}
+          <Route
+            path="agents"
+            element={
+              <RoleGuard allowedRoles={['ADMIN']}>
+                <AgentManagement />
+              </RoleGuard>
+            }
+          />
+        </Route>
 
-      {/* 404 Fallback */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        {/* 404 Fallback */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 }
 

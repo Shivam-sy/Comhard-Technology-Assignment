@@ -3,20 +3,39 @@ const API_BASE = '/api';
 class ApiClient {
   constructor() {
     this.tokenGetter = null;
-    this.devUserId = localStorage.getItem('support_desk_dev_user_id') || 'user_admin_seed';
+    this.devUserId = null;
+    this.staffUser = null;
+    // Clear any obsolete dev user id that was defaulting to System Admin
+    localStorage.removeItem('support_desk_dev_user_id');
   }
 
   setTokenGetter(getter) {
     this.tokenGetter = getter;
   }
 
+  setStaffUser(user) {
+    this.staffUser = user;
+    if (user) {
+      localStorage.setItem('support_desk_staff_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('support_desk_staff_user');
+    }
+  }
+
+  getStaffUser() {
+    if (!this.staffUser) {
+      const storedStaff = localStorage.getItem('support_desk_staff_user');
+      if (storedStaff) {
+        try {
+          this.staffUser = JSON.parse(storedStaff);
+        } catch (e) {}
+      }
+    }
+    return this.staffUser;
+  }
+
   setDevUser(userId) {
     this.devUserId = userId;
-    if (userId) {
-      localStorage.setItem('support_desk_dev_user_id', userId);
-    } else {
-      localStorage.removeItem('support_desk_dev_user_id');
-    }
   }
 
   getDevUser() {
@@ -29,21 +48,30 @@ class ApiClient {
       ...options.headers,
     };
 
-    // Attach Clerk token if configured
+    // Primary: Attach live Clerk token whenever tokenGetter is provided
+    let clerkToken = null;
     if (this.tokenGetter) {
       try {
-        const token = await this.tokenGetter();
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
+        clerkToken = await this.tokenGetter();
+        if (clerkToken) {
+          headers['Authorization'] = `Bearer ${clerkToken}`;
         }
       } catch (e) {
         console.warn('Failed to retrieve Clerk token:', e);
       }
     }
 
-    // Attach dev identity header for testing or demo mode
-    if (this.devUserId && !headers['Authorization']) {
-      headers['x-dev-user-id'] = this.devUserId;
+    // Only attach staff identity headers if NOT authenticated as a Clerk user
+    if (!clerkToken) {
+      const staff = this.getStaffUser();
+      if (staff) {
+        headers['x-staff-id'] = staff.id;
+        headers['x-staff-role'] = staff.role || 'ADMIN';
+        headers['x-staff-name'] = staff.name || staff.id;
+        headers['x-staff-email'] = staff.email || `${staff.id}@supportdesk.internal`;
+      } else if (this.devUserId) {
+        headers['x-dev-user-id'] = this.devUserId;
+      }
     }
 
     const config = {
@@ -76,6 +104,13 @@ class ApiClient {
   // Users & Auth
   async getMe() {
     return this.request('/users/me');
+  }
+
+  async updateProfile(data) {
+    return this.request('/users/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
   }
 
   async listUsers(params = {}) {

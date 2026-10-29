@@ -3,18 +3,20 @@ import { Link } from 'react-router-dom';
 import apiClient from '../../api/client';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import TicketList from '../../components/tickets/TicketList';
-import {
-  Inbox,
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
-  Flame,
-  UserCheck,
-  LifeBuoy,
-  ChevronRight,
-} from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { cn } from '@/lib/utils';
+
+function Stat({ label, value, to, alert }) {
+  return (
+    <Link to={to} className="px-5 py-4 hover:bg-muted/40 transition-colors">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className={cn('mt-1 text-2xl font-semibold tabular-nums', alert && 'text-rose-600')}>{value}</p>
+    </Link>
+  );
+}
 
 export function StaffDashboard() {
+  const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,116 +36,42 @@ export function StaffDashboard() {
     load();
   }, []);
 
-  if (loading) return <LoadingSpinner fullPage text="Loading helpdesk dashboard metrics..." />;
+  if (loading) return <LoadingSpinner fullPage text="Loading…" />;
 
-  const { metrics, recentTickets = [], userRole } = data || {};
+  const { metrics, recentTickets = [] } = data || {};
+  const overdue = metrics?.overdue || 0;
 
   return (
-    <div className="space-y-6">
-      {/* Title */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Helpdesk Overview</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Real-time operations metrics aggregated from PostgreSQL support database.
-          </p>
-        </div>
-
-        <Link
-          to="/staff/tickets"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition"
-        >
-          View All Tickets
-          <ChevronRight className="w-3.5 h-3.5" />
-        </Link>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Hi{user?.name ? `, ${user.name.split(' ')[0]}` : ''}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {overdue > 0
+            ? `${overdue} ${overdue === 1 ? 'ticket has' : 'tickets have'} been waiting over 24 hours.`
+            : 'Here’s what’s happening in your queue.'}
+        </p>
       </div>
 
-      {/* SLA Alert banner if overdue tickets exist */}
-      {metrics?.overdue > 0 && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-rose-100 flex items-center justify-center text-rose-700 shrink-0">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-rose-900">
-                {metrics.overdue} SLA Overdue {metrics.overdue === 1 ? 'Ticket' : 'Tickets'} Detected
-              </h4>
-              <p className="text-xs text-rose-700 mt-0.5">
-                Tickets older than 24 hours requiring prompt resolution by support agents.
-              </p>
-            </div>
-          </div>
+      {error && <p className="text-sm text-rose-600">{error}</p>}
 
-          <Link
-            to="/staff/tickets?isOverdue=true"
-            className="px-3 py-1.5 rounded-md bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-sm transition"
-          >
-            Review Overdue Tickets
-          </Link>
-        </div>
-      )}
-
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        {/* Total */}
-        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-          <span className="text-[11px] font-semibold text-slate-500 uppercase">Total Queue</span>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{metrics?.total || 0}</p>
-        </div>
-
-        {/* Open */}
-        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-          <span className="text-[11px] font-semibold text-blue-600 uppercase">Open</span>
-          <p className="text-2xl font-bold text-blue-700 mt-1">{metrics?.open || 0}</p>
-        </div>
-
-        {/* In Progress */}
-        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-          <span className="text-[11px] font-semibold text-amber-600 uppercase">In Progress</span>
-          <p className="text-2xl font-bold text-amber-700 mt-1">{metrics?.inProgress || 0}</p>
-        </div>
-
-        {/* Waiting on Customer */}
-        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-          <span className="text-[11px] font-semibold text-purple-600 uppercase">Waiting</span>
-          <p className="text-2xl font-bold text-purple-700 mt-1">{metrics?.waitingOnCustomer || 0}</p>
-        </div>
-
-        {/* Resolved */}
-        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-          <span className="text-[11px] font-semibold text-emerald-600 uppercase">Resolved</span>
-          <p className="text-2xl font-bold text-emerald-700 mt-1">{metrics?.resolved || 0}</p>
-        </div>
-
-        {/* Urgent */}
-        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-          <span className="text-[11px] font-semibold text-orange-600 uppercase">Urgent</span>
-          <p className="text-2xl font-bold text-orange-700 mt-1">{metrics?.urgent || 0}</p>
-        </div>
-
-        {/* Overdue */}
-        <div className="bg-white p-4 rounded-lg border border-rose-200 bg-rose-50/30 shadow-sm">
-          <span className="text-[11px] font-bold text-rose-700 uppercase">Overdue (&gt;24h)</span>
-          <p className="text-2xl font-bold text-rose-700 mt-1">{metrics?.overdue || 0}</p>
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 rounded-lg border border-border divide-x divide-y md:divide-y-0 divide-border overflow-hidden">
+        <Stat label="Open" value={metrics?.open || 0} to="/staff/tickets?status=OPEN" />
+        <Stat label="In progress" value={metrics?.inProgress || 0} to="/staff/tickets?status=IN_PROGRESS" />
+        <Stat label="Waiting on customer" value={metrics?.waitingOnCustomer || 0} to="/staff/tickets?status=WAITING_ON_CUSTOMER" />
+        <Stat label="Overdue" value={overdue} to="/staff/tickets?isOverdue=true" alert={overdue > 0} />
       </div>
 
-      {/* Recent Workspace Tickets */}
-      <div className="space-y-3">
+      <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-slate-900">Recently Updated Tickets</h2>
-          <Link to="/staff/tickets" className="text-xs text-freshdesk-600 hover:underline font-semibold">
-            View All Tickets &rarr;
+          <h2 className="font-medium">Recent tickets</h2>
+          <Link to="/staff/tickets" className="text-sm text-muted-foreground hover:text-foreground">
+            View all
           </Link>
         </div>
-
-        <TicketList
-          tickets={recentTickets}
-          baseUrl="/staff/tickets"
-          emptyTitle="No recent tickets found"
-        />
-      </div>
+        <TicketList tickets={recentTickets} baseUrl="/staff/tickets" emptyTitle="No tickets yet" />
+      </section>
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageSquare,
   Lock,
@@ -10,9 +9,14 @@ import {
   CheckCircle2,
   ArrowRight,
   Send,
-  LifeBuoy,
+  Eye,
+  Check,
 } from 'lucide-react';
-import { StatusBadge, PriorityBadge, OverdueBadge } from '../common/Badge';
+import { StatusBadge, PriorityBadge } from '../common/Badge';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Avatar, AvatarFallback } from '../ui/avatar';
+import { cn } from '@/lib/utils';
 
 export function InteractiveDeskPreview() {
   const [activeTab, setActiveTab] = useState('staff'); // 'staff' | 'customer'
@@ -36,7 +40,7 @@ export function InteractiveDeskPreview() {
       role: 'AGENT',
       type: 'INTERNAL_NOTE',
       time: '10:22 AM',
-      content: 'Private Note: The IdP certificate assertion mismatch in Okta. Updating trusted x509 cert thumbprint.',
+      content: 'Internal Note: Confirmed Okta cert thumbprint discrepancy. Reloaded security credentials cache.',
     },
     {
       id: 3,
@@ -44,7 +48,7 @@ export function InteractiveDeskPreview() {
       role: 'AGENT',
       type: 'PUBLIC_REPLY',
       time: '10:30 AM',
-      content: 'Hello Alice, we identified an expired IdP thumbprint assertion and are refreshing the trusted keys now.',
+      content: 'Hello Alice, we refreshed the trusted x509 cert thumbprints in the auth service. Please retry authentication.',
     },
   ]);
 
@@ -74,98 +78,100 @@ export function InteractiveDeskPreview() {
     : notes;
 
   return (
-    <div className="w-full bg-white rounded-2xl border border-slate-200/90 shadow-2xl shadow-slate-200/50 overflow-hidden text-left">
+    <div className="w-full bg-card rounded-xl border border-border shadow-lg overflow-hidden text-left font-sans">
       {/* Top Preview Control Header */}
-      <div className="bg-slate-50/80 px-4 py-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
-        {/* Window dots */}
-        <div className="flex items-center gap-2">
+      <div className="bg-muted/40 px-5 py-3 border-b border-border flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-slate-300" />
-            <span className="w-3 h-3 rounded-full bg-slate-300" />
-            <span className="w-3 h-3 rounded-full bg-slate-300" />
+            <span className="w-2.5 h-2.5 rounded-full bg-border" />
+            <span className="w-2.5 h-2.5 rounded-full bg-border" />
+            <span className="w-2.5 h-2.5 rounded-full bg-border" />
           </div>
-          <span className="text-xs font-semibold text-slate-500 pl-2 border-l border-slate-200">
-            Interactive System Preview
+          <span className="text-xs font-medium text-muted-foreground pl-2 border-l border-border">
+            Interactive Support Console Sandbox
           </span>
         </div>
 
         {/* Perspective Switcher */}
-        <div className="flex items-center bg-white p-1 rounded-lg border border-slate-200 shadow-2xs">
+        <div className="flex items-center bg-muted/80 p-1 rounded-lg border border-border">
           <button
             onClick={() => setActiveTab('staff')}
-            className={`px-3 py-1 rounded text-xs font-semibold transition ${
+            className={cn(
+              'px-3 py-1 rounded-md text-xs font-medium transition-all',
               activeTab === 'staff'
-                ? 'bg-slate-950 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+                ? 'bg-background text-foreground shadow-2xs font-semibold'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
           >
-            Support Staff Workspace
+            Staff Desk View
           </button>
           <button
             onClick={() => setActiveTab('customer')}
-            className={`px-3 py-1 rounded text-xs font-semibold transition ${
+            className={cn(
+              'px-3 py-1 rounded-md text-xs font-medium transition-all',
               activeTab === 'customer'
-                ? 'bg-slate-950 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+                ? 'bg-background text-foreground shadow-2xs font-semibold'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
           >
-            Customer Self-Service View
+            Customer Portal View
           </button>
         </div>
       </div>
 
-      {/* Ticket Workspace Header */}
-      <div className="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-white">
-        <div>
-          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className="font-mono text-xs font-semibold text-slate-400">#TK-89421</span>
+      {/* Ticket Header */}
+      <div className="p-5 border-b border-border flex flex-wrap items-center justify-between gap-4 bg-background">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-mono text-xs font-semibold text-muted-foreground">#TK-89421</span>
             <StatusBadge status={ticketStatus} />
             <PriorityBadge priority={ticketPriority} />
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-md bg-rose-50 text-rose-700 border border-rose-200">
-              <Clock className="w-3.5 h-3.5 text-rose-600" />
-              SLA Compliant (2h left)
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800">
+              <Clock className="w-3 h-3 text-emerald-600" />
+              SLA Compliant (&lt;4h remaining)
             </span>
           </div>
-          <h3 className="text-base sm:text-lg font-bold text-slate-950">
+          <h3 className="text-base font-semibold text-foreground tracking-tight">
             SAML SSO Login fails with assertion error 403
           </h3>
         </div>
 
-        <div className="text-xs text-slate-500">
-          <span className="block font-medium">Customer: Alice Cooper</span>
-          <span className="text-slate-400">Enterprise Cloud Tier</span>
+        <div className="text-xs text-muted-foreground text-right">
+          <span className="block font-medium text-foreground">Customer: Alice Cooper</span>
+          <span className="font-mono text-[11px]">Acme Enterprise Tier</span>
         </div>
       </div>
 
       {/* Main Two-Column Area */}
-      <div className="grid grid-cols-1 md:grid-cols-12 min-h-[420px]">
+      <div className="grid grid-cols-1 md:grid-cols-12 min-h-[400px]">
         {/* Left Column: Conversation & Composer */}
-        <div className="md:col-span-8 p-5 border-r border-slate-100 flex flex-col justify-between space-y-4">
+        <div className="md:col-span-8 p-5 border-r border-border flex flex-col justify-between space-y-4 bg-background">
           {/* Conversation history */}
           <div className="space-y-3 max-h-[260px] overflow-y-auto pr-2">
             {visibleNotes.map((item) => (
               <div
                 key={item.id}
-                className={`p-3.5 rounded-xl border text-xs transition-all ${
+                className={cn(
+                  'p-3.5 rounded-lg border text-xs transition-all space-y-1.5',
                   item.type === 'INTERNAL_NOTE'
-                    ? 'bg-amber-50/80 border-amber-200 ring-1 ring-amber-300/40 text-amber-950'
-                    : 'bg-slate-50/60 border-slate-200 text-slate-800'
-                }`}
+                    ? 'bg-amber-50/70 border-amber-200/90 dark:bg-amber-950/30 dark:border-amber-900/60 text-amber-950 dark:text-amber-200'
+                    : 'bg-muted/30 border-border text-foreground'
+                )}
               >
-                <div className="flex items-center justify-between mb-1.5 font-medium">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-bold">{item.author}</span>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-white/80 border border-slate-200 text-slate-600">
+                <div className="flex items-center justify-between font-medium">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold">{item.author}</span>
+                    <Badge variant="outline" className="text-[10px] py-0 px-1.5">
                       {item.role}
-                    </span>
+                    </Badge>
                     {item.type === 'INTERNAL_NOTE' && (
-                      <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-800 bg-amber-200/80 px-1.5 py-0.2 rounded">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-200/60 dark:bg-amber-900/50 px-1.5 py-0.2 rounded">
                         <Lock className="w-2.5 h-2.5" />
                         Private Note
                       </span>
                     )}
                   </div>
-                  <span className="text-[11px] text-slate-400">{item.time}</span>
+                  <span className="text-[11px] text-muted-foreground">{item.time}</span>
                 </div>
                 <p className="leading-relaxed whitespace-pre-wrap">{item.content}</p>
               </div>
@@ -173,31 +179,34 @@ export function InteractiveDeskPreview() {
           </div>
 
           {/* Composer */}
-          <form onSubmit={handleAddComment} className="pt-2 border-t border-slate-100 space-y-2">
+          <form onSubmit={handleAddComment} className="pt-3 border-t border-border space-y-2.5">
             {activeTab === 'staff' && (
               <div className="flex items-center gap-2 text-xs">
                 <button
                   type="button"
                   onClick={() => setComposerMode('PUBLIC_REPLY')}
-                  className={`px-2.5 py-1 rounded-md font-semibold transition ${
+                  className={cn(
+                    'px-2.5 py-1 rounded-md text-xs font-medium transition flex items-center gap-1.5',
                     composerMode === 'PUBLIC_REPLY'
-                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
+                      ? 'bg-primary text-primary-foreground font-semibold shadow-2xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
                 >
+                  <MessageSquare className="w-3.5 h-3.5" />
                   Public Reply
                 </button>
                 <button
                   type="button"
                   onClick={() => setComposerMode('INTERNAL_NOTE')}
-                  className={`px-2.5 py-1 rounded-md font-semibold transition ${
+                  className={cn(
+                    'px-2.5 py-1 rounded-md text-xs font-medium transition flex items-center gap-1.5',
                     composerMode === 'INTERNAL_NOTE'
-                      ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
+                      ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/80 dark:text-amber-200 border border-amber-300 dark:border-amber-800 font-semibold shadow-2xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
                 >
-                  <Lock className="w-3 h-3 inline mr-1" />
-                  Internal Note
+                  <Lock className="w-3 h-3 text-amber-700 dark:text-amber-400" />
+                  Internal Note (Confidential)
                 </button>
               </div>
             )}
@@ -209,37 +218,34 @@ export function InteractiveDeskPreview() {
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder={
                   activeTab === 'customer'
-                    ? 'Write a reply to support...'
+                    ? 'Write a reply to support team...'
                     : composerMode === 'INTERNAL_NOTE'
-                    ? 'Write a private internal note for the support team...'
+                    ? 'Write confidential note (never shown to customer)...'
                     : 'Write a public reply to Alice...'
                 }
-                className="flex-1 px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 bg-slate-50/50"
+                className="flex-1 px-3 py-2 text-xs border border-input rounded-md focus:outline-none focus:ring-1 focus:ring-ring bg-background text-foreground"
               />
-              <button
-                type="submit"
-                className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-950 text-white hover:bg-slate-800 transition shadow-xs flex items-center gap-1"
-              >
+              <Button type="submit" size="sm" className="text-xs font-medium gap-1 px-4">
                 <Send className="w-3 h-3" />
-                Send
-              </button>
+                Submit
+              </Button>
             </div>
           </form>
         </div>
 
         {/* Right Column: Properties Panel */}
-        <div className="md:col-span-4 p-5 bg-slate-50/50 space-y-4 text-xs">
-          <h4 className="font-bold text-slate-500 uppercase tracking-wider text-[10px]">
+        <div className="md:col-span-4 p-5 bg-muted/20 space-y-4 text-xs">
+          <h4 className="font-semibold text-muted-foreground uppercase tracking-wider text-[11px]">
             Ticket Properties
           </h4>
 
           {/* Status Dropdown */}
-          <div className="space-y-1">
-            <label className="text-slate-600 font-medium">Status</label>
+          <div className="space-y-1.5">
+            <label className="text-foreground font-medium">Status</label>
             <select
               value={ticketStatus}
               onChange={(e) => setTicketStatus(e.target.value)}
-              className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-lg font-medium focus:outline-none focus:ring-1 focus:ring-slate-900"
+              className="w-full px-2.5 py-1.5 text-xs bg-background border border-input rounded-md font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             >
               <option value="OPEN">Open</option>
               <option value="IN_PROGRESS">In Progress</option>
@@ -249,12 +255,12 @@ export function InteractiveDeskPreview() {
           </div>
 
           {/* Priority Dropdown */}
-          <div className="space-y-1">
-            <label className="text-slate-600 font-medium">Priority</label>
+          <div className="space-y-1.5">
+            <label className="text-foreground font-medium">Priority</label>
             <select
               value={ticketPriority}
               onChange={(e) => setTicketPriority(e.target.value)}
-              className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-lg font-medium focus:outline-none focus:ring-1 focus:ring-slate-900"
+              className="w-full px-2.5 py-1.5 text-xs bg-background border border-input rounded-md font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             >
               <option value="LOW">Low</option>
               <option value="MEDIUM">Medium</option>
@@ -264,12 +270,12 @@ export function InteractiveDeskPreview() {
           </div>
 
           {/* Assignee */}
-          <div className="space-y-1">
-            <label className="text-slate-600 font-medium">Assigned Agent</label>
+          <div className="space-y-1.5">
+            <label className="text-foreground font-medium">Assigned Agent</label>
             <select
               value={ticketAssignee}
               onChange={(e) => setTicketAssignee(e.target.value)}
-              className="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-200 rounded-lg font-medium focus:outline-none focus:ring-1 focus:ring-slate-900"
+              className="w-full px-2.5 py-1.5 text-xs bg-background border border-input rounded-md font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             >
               <option value="Jane Agent">Jane Agent (Assigned)</option>
               <option value="System Admin">System Admin</option>
@@ -278,15 +284,15 @@ export function InteractiveDeskPreview() {
           </div>
 
           {/* Live Security Guarantee Card */}
-          <div className="p-3 bg-white rounded-lg border border-slate-200/90 shadow-2xs space-y-1">
-            <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[11px]">
+          <div className="p-3 bg-background rounded-lg border border-border shadow-2xs space-y-1">
+            <div className="flex items-center gap-1.5 font-semibold text-foreground text-xs">
               <Shield className="w-3.5 h-3.5 text-emerald-600" />
               Role Privacy Barrier
             </div>
-            <p className="text-[11px] text-slate-500 leading-normal">
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
               {activeTab === 'customer'
-                ? 'Internal notes are strictly filtered at the database level. Customers never receive staff notes.'
-                : 'Staff members have full access to internal notes and complete audit history.'}
+                ? 'Internal notes are strictly filtered at the database level. Customers cannot query or inspect staff notes.'
+                : 'Staff members have full access to internal notes and the audit history.'}
             </p>
           </div>
         </div>

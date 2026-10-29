@@ -112,10 +112,11 @@ export async function listTickets(query, currentUser) {
     ];
   }
 
-  // 6. Search filter (subject, customer name, customer email)
+  // 6. Search filter (ticket ID, subject, customer name, customer email)
   if (search && search.trim()) {
     const term = search.trim();
     const searchConditions = [
+      { id: { contains: term, mode: 'insensitive' } },
       { subject: { contains: term, mode: 'insensitive' } },
       { customer: { name: { contains: term, mode: 'insensitive' } } },
       { customer: { email: { contains: term, mode: 'insensitive' } } },

@@ -7,6 +7,7 @@ import { updateRoleSchema } from '../validators/users.validator.js';
 const router = Router();
 
 router.get('/me', requireAuth, usersController.getMe);
+router.patch('/profile', requireAuth, usersController.updateProfile);
 router.get('/', requireAdmin, usersController.listUsers);
 router.patch('/:id/role', requireAdmin, validate(updateRoleSchema, 'body'), usersController.updateUserRole);
 

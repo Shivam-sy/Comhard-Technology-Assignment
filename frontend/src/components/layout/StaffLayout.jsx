@@ -1,132 +1,103 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import RoleSwitcherBar from '../common/RoleSwitcherBar';
-import { RoleBadge } from '../common/Badge';
-import {
-  LifeBuoy,
-  LayoutDashboard,
-  Inbox,
-  UserCheck,
-  Users,
-  Plus,
-  Search,
-  Settings,
-  ChevronRight,
-} from 'lucide-react';
+import { Avatar, AvatarFallback } from '../ui/avatar';
+import { LayoutDashboard, Inbox, UserCheck, Users, Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export function StaffLayout() {
-  const { user, role, isAdmin } = useAuth();
+  const { user, role, isAdmin, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   const navItems = [
     { label: 'Overview', path: '/staff/dashboard', icon: LayoutDashboard },
-    { label: 'All Tickets', path: '/staff/tickets', icon: Inbox },
-    { label: 'Assigned to Me', path: '/staff/assigned', icon: UserCheck },
-    ...(isAdmin ? [{ label: 'User & Agent Management', path: '/staff/agents', icon: Users }] : []),
+    { label: 'All tickets', path: '/staff/tickets', icon: Inbox },
+    { label: 'Assigned to me', path: '/staff/assigned', icon: UserCheck },
+    ...(isAdmin ? [{ label: 'Team', path: '/staff/agents', icon: Users }] : []),
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100">
-      {/* Dev Switcher Bar */}
-      <RoleSwitcherBar />
-
-      <div className="flex-1 flex overflow-hidden">
-        {/* Freshdesk Helpdesk Sidebar */}
-        <aside className="w-64 bg-freshdesk-navy text-slate-200 flex flex-col shrink-0 border-r border-slate-800">
-          {/* Logo & Product Heading */}
-          <div className="h-16 flex items-center px-6 gap-3 border-b border-slate-800 bg-freshdesk-dark">
-            <div className="w-8 h-8 rounded-lg bg-white text-slate-950 flex items-center justify-center font-bold text-sm shadow">
+    <div className="min-h-screen flex flex-col bg-background">
+      <div className="flex-1 flex min-h-0">
+        <aside className="w-56 shrink-0 border-r border-border bg-muted/30 flex flex-col">
+          <Link to="/" className="h-14 flex items-center gap-2 px-4">
+            <div className="w-7 h-7 rounded-md bg-foreground text-background flex items-center justify-center text-sm font-semibold">
               D
             </div>
-            <div>
-              <span className="font-bold text-white text-base tracking-tight">Desk Flow</span>
-              <span className="block text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
-                Helpdesk Console
-              </span>
-            </div>
-          </div>
+            <span className="font-semibold tracking-tight">DeskFlow</span>
+          </Link>
 
-          {/* Quick Action */}
-          <div className="p-4">
-            <Link
-              to="/portal/tickets/new"
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-freshdesk-500 hover:bg-freshdesk-600 text-white font-medium text-xs shadow-sm transition"
-            >
-              <Plus className="w-4 h-4" />
-              New Ticket
-            </Link>
-          </div>
-
-          {/* Navigation Links */}
-          <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
+          <nav className="flex-1 px-2 py-2 space-y-0.5">
+            {navItems.map(({ label, path, icon: Icon }) => {
+              const isActive = location.pathname === path;
               return (
                 <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition ${
+                  key={path}
+                  to={path}
+                  className={cn(
+                    'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors',
                     isActive
-                      ? 'bg-freshdesk-600 text-white shadow-sm'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800'
-                  }`}
+                      ? 'bg-background text-foreground font-medium shadow-sm border border-border'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  )}
                 >
-                  <Icon className="w-4 h-4 text-slate-400 group-hover:text-white" />
-                  <span className="flex-1">{item.label}</span>
-                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-freshdesk-200" />}
+                  <Icon className="w-4 h-4" />
+                  {label}
                 </Link>
               );
             })}
           </nav>
 
-          {/* Current Staff User Card in Sidebar */}
-          <div className="p-4 border-t border-slate-800 bg-slate-900/60 flex items-center justify-between">
-            <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-9 h-9 rounded-full bg-freshdesk-700 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
-              </div>
-              <div className="overflow-hidden">
-                <p className="text-xs font-semibold text-white truncate leading-tight">{user?.name}</p>
-                <div className="mt-0.5">
-                  <RoleBadge role={role} />
-                </div>
+          <div className="p-3 border-t border-border flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Avatar className="w-7 h-7 shrink-0">
+                <AvatarFallback className="text-xs">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate leading-tight">{user?.name}</p>
+                <p className="text-xs text-muted-foreground capitalize">{role?.toLowerCase()}</p>
               </div>
             </div>
+            <button
+              onClick={() => {
+                logout();
+                navigate('/');
+              }}
+              title="Sign out of staff desk"
+              className="text-xs font-semibold text-rose-600 hover:text-rose-700 px-2 py-1 rounded-md hover:bg-rose-50 transition-colors cursor-pointer"
+            >
+              Sign out
+            </button>
           </div>
         </aside>
 
-        {/* Main Workspace Column */}
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-          {/* Top Bar */}
-          <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 sticky top-0 z-10">
-            <div className="flex items-center gap-3 flex-1 max-w-md">
-              <div className="relative w-full">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Search tickets by subject, customer name or email..."
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && e.target.value.trim()) {
-                      navigate(`/staff/tickets?search=${encodeURIComponent(e.target.value.trim())}`);
-                    }
-                  }}
-                  className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-none focus:ring-1 focus:ring-freshdesk-500 focus:border-freshdesk-500"
-                />
-              </div>
+          <header className="h-14 border-b border-border flex items-center justify-between gap-4 px-6 shrink-0">
+            <div className="relative w-full max-w-sm">
+              <Search className="w-4 h-4 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search tickets"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && e.target.value.trim()) {
+                    navigate(`/staff/tickets?search=${encodeURIComponent(e.target.value.trim())}`);
+                  }
+                }}
+                className="w-full pl-8 pr-3 py-1.5 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-1 focus:ring-ring"
+              />
             </div>
-
-            <div className="flex items-center gap-4">
-              <span className="text-xs text-slate-500 hidden sm:inline">
-                Support Workspace — <strong>{role === 'ADMIN' ? 'All Workspace Queue' : 'Agent Queue'}</strong>
-              </span>
-            </div>
+            <Link
+              to="/portal/dashboard"
+              className="text-sm text-muted-foreground hover:text-foreground whitespace-nowrap"
+            >
+              Customer portal
+            </Link>
           </header>
 
-          {/* Content Outlet */}
-          <main className="flex-1 p-6">
+          <main className="flex-1 p-6 max-w-6xl w-full">
             <Outlet />
           </main>
         </div>
